@@ -150,7 +150,7 @@ func matchPackagesInFS(pattern string) []string {
 		// Avoid .foo, _foo, and testdata directory trees, but do not avoid "." or "..".
 		_, elem := filepath.Split(path)
 		dot := strings.HasPrefix(elem, ".") && elem != "." && elem != ".."
-		if dot || strings.HasPrefix(elem, "_") || elem == "testdata" {
+		if dot || strings.HasPrefix(elem, "_") || elem == "testdata" || elem == "vendor" {
 			return filepath.SkipDir
 		}
 
