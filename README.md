@@ -6,9 +6,11 @@ users from adding banned deps.
 ## Use Cases
 
 - you have multiple packages with the same name in GOPATH (maybe even the same
-methods) and your editor sometimes import the wrong import in some files
+methods) and your editor sometimes import the wrong import in some files ([example][goreleaser])
 - you have explicit rules in your codebase regarding which packages can import
 which packages
+
+[goreleaser]: https://github.com/goreleaser/goreleaser/commit/4f3ed001daa737cd4f705e4909bc489936c1a545
 
 ## Usage
 
@@ -18,9 +20,10 @@ A basic usage would be to ban some deps in the current project, recursively:
 bandep --pkg ./... --ban foo/bar --ban github.com/foo/bar
 ```
 
-Or, for example, [on DigitalOcean, they forbit the exp package to imported from anywhere][1]:
+Or, for example, [on DigitalOcean][do], they forbid the exp package to be
+imported from anywhere but the exp package itself:
 
-[1]: https://speakerdeck.com/farslan/go-at-digitalocean?slide=80
+[do]: https://speakerdeck.com/farslan/go-at-digitalocean?slide=80
 
 ```console
 go list -f '{{ .Dir }}' -e ./... | grep -v do/exp | while read -r pkg; do
@@ -29,6 +32,11 @@ done
 ```
 
 Composing it with shell (and `go list`), you can do basically anything you need.
+
+You can, of course, add it to your git pre-commit hook. Check out
+[this example][precom].
+
+[precom]: https://github.com/goreleaser/goreleaser/commit/777b9c68adf5b87a9d3a3291a77a6e41a7215a43
 
 ## Install
 
