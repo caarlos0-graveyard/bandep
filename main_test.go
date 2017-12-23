@@ -15,7 +15,13 @@ func TestCheck(t *testing.T) {
 }
 
 func TestCheckGoodCode(t *testing.T) {
+	// check package
 	err := check("./testdata/pkgs/goodpkg/...", []string{"go/ast"})
+	if err != nil {
+		t.Fatal("got an unexpected error:", err)
+	}
+	// check specific folder
+	err = check("./testdata/pkgs/goodpkg", []string{"go/ast"})
 	if err != nil {
 		t.Fatal("got an unexpected error:", err)
 	}

@@ -47,19 +47,29 @@ func main() {
 }
 
 func check(path string, bans []string) error {
-	for _, pkg := range allPackagesInFS(path) {
-		packs, err := parser.ParseDir(token.NewFileSet(), pkg, nil, 0)
-		if err != nil {
-			return errors.Wrapf(err, "failed to parse pkg: %s", pkg)
+	if strings.HasSuffix(path, "/...") {
+		for _, pkg := range allPackagesInFS(path) {
+			if err := checkPkg(pkg, bans); err != nil {
+				return err
+			}
 		}
-		for _, pack := range packs {
-			for _, file := range pack.Files {
-				imports := checkBannedImports(file, bans)
-				if len(imports) > 0 {
-					return bannedError{
-						Package: pkg,
-						Imports: imports,
-					}
+		return nil
+	}
+	return checkPkg(path, bans)
+}
+
+func checkPkg(pkg string, bans []string) error {
+	packs, err := parser.ParseDir(token.NewFileSet(), pkg, nil, 0)
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse pkg: %s", pkg)
+	}
+	for _, pack := range packs {
+		for _, file := range pack.Files {
+			imports := checkBannedImports(file, bans)
+			if len(imports) > 0 {
+				return bannedError{
+					Package: pkg,
+					Imports: imports,
 				}
 			}
 		}
