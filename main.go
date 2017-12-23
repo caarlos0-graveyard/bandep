@@ -19,9 +19,9 @@ import (
 
 var (
 	version = "dev"
-	app     = kingpin.New("bandep", "ban dependency imports")
-	pkg     = app.Flag("pkg", "package to check").Default(".").String()
-	bans    = app.Flag("bans", "import paths to ban").Strings()
+	app     = kingpin.New("bandep", "enforce banned dependency imports")
+	pkg     = app.Flag("pkg", "package to check").Default("./...").String()
+	bans    = app.Flag("ban", "import paths to ban").Strings()
 )
 
 type bannedError struct {
