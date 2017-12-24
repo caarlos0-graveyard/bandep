@@ -24,7 +24,3 @@
 [[constraint]]
   name = "github.com/alecthomas/kingpin"
   version = "2.2.6"
-
-[[constraint]]
-  name = "github.com/pkg/errors"
-  version = "0.8.0"

@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -61,7 +60,7 @@ func check(path string, bans []string) error {
 func checkPkg(pkg string, bans []string) error {
 	packs, err := parser.ParseDir(token.NewFileSet(), pkg, nil, 0)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse pkg: %s", pkg)
+		return fmt.Errorf("failed to parse pkg: %s: %s", pkg, err.Error())
 	}
 	for _, pack := range packs {
 		for _, file := range pack.Files {
