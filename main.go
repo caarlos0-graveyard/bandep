@@ -19,8 +19,8 @@ var (
 	version = "dev"
 	pkg     = flag.String("pkg", "./...", "package to check")
 	bansStr = flag.String("ban", "", "import paths to ban (comma separated list)")
-	help    = flag.Bool("help", false, "Show context-sensitive help.")
-	vers    = flag.Bool("version", false, "Show application version.")
+	help    = flag.Bool("help", false, "show context-sensitive help.")
+	vers    = flag.Bool("version", false, "show application version.")
 )
 
 type bannedError struct {
@@ -50,10 +50,10 @@ Flags:
 
 	if *help {
 		flag.Usage()
-		os.Exit(0)
+		return
 	} else if *vers {
 		fmt.Println(version)
-		os.Exit(0)
+		return
 	}
 
 	// Process the ban argument from string to list of strings

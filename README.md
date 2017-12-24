@@ -17,7 +17,7 @@ which packages
 A basic usage would be to ban some deps in the current project, recursively:
 
 ```console
-bandep --pkg ./... --ban foo/bar --ban github.com/foo/bar
+bandep --pkg ./... --ban foo/bar,github.com/foo/bar
 ```
 
 Or, for example, [on DigitalOcean][do], they forbid the exp package to be
