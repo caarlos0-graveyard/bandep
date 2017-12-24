@@ -51,7 +51,8 @@ Flags:
 	if *help {
 		flag.Usage()
 		return
-	} else if *vers {
+	}
+	if *vers {
 		fmt.Println(version)
 		return
 	}
@@ -63,21 +64,21 @@ Flags:
 	}
 
 	if err := check(*pkg, bans); err != nil {
-		fmt.Println(err)
+		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 }
 
 func check(path string, bans []string) error {
-	if strings.HasSuffix(path, "/...") {
-		for _, pkg := range allPackagesInFS(path) {
-			if err := checkPkg(pkg, bans); err != nil {
-				return err
-			}
-		}
-		return nil
+	if !strings.HasSuffix(path, "/...") {
+		return checkPkg(path, bans)
 	}
-	return checkPkg(path, bans)
+	for _, pkg := range allPackagesInFS(path) {
+		if err := checkPkg(pkg, bans); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func checkPkg(pkg string, bans []string) error {
