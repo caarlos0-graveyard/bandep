@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"go/ast"
 	"go/build"
@@ -12,15 +13,14 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/alecthomas/kingpin"
 )
 
 var (
 	version = "dev"
-	app     = kingpin.New("bandep", "enforce banned dependency imports")
-	pkg     = app.Flag("pkg", "package to check").Default("./...").String()
-	bans    = app.Flag("ban", "import paths to ban").Strings()
+	pkg     = flag.String("pkg", "./...", "package to check")
+	bansStr = flag.String("ban", "", "import paths to ban (comma separated list)")
+	help    = flag.Bool("help", false, "Show context-sensitive help.")
+	vers    = flag.Bool("version", false, "Show application version.")
 )
 
 type bannedError struct {
@@ -33,13 +33,36 @@ func (e bannedError) Error() string {
 }
 
 func main() {
-	app.Version(version)
-	app.HelpFlag.Short('h')
-	app.VersionFlag.Short('v')
+	flag.BoolVar(help, "h", false, "Show context-sensitive help.")
+	flag.BoolVar(vers, "v", false, "Show application version.")
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, `usage: bandep [<flags>]
 
-	kingpin.MustParse(app.Parse(os.Args[1:]))
+enforce banned dependency imports
 
-	if err := check(*pkg, *bans); err != nil {
+Flags:
+  -h, --help              Show context-sensitive help.
+      --pkg="./..."       Package to check.
+      --ban=BAN1,BAN2,... Import paths to ban (comma separated list).
+  -v, --version           Show application version.`)
+	}
+	flag.Parse()
+
+	if *help {
+		flag.Usage()
+		os.Exit(0)
+	} else if *vers {
+		fmt.Println(version)
+		os.Exit(0)
+	}
+
+	// Process the ban argument from string to list of strings
+	bans := strings.Split(*bansStr, ",")
+	for i, ban := range bans {
+		bans[i] = strings.TrimSpace(ban)
+	}
+
+	if err := check(*pkg, bans); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
