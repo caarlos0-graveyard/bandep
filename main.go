@@ -15,6 +15,7 @@ import (
 	"strings"
 )
 
+// nolint: gochecknoglobals
 var (
 	version = "dev"
 	pkg     = flag.String("pkg", "./...", "package to check")
@@ -64,7 +65,7 @@ Flags:
 	}
 
 	if err := check(*pkg, bans); err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
+		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(1)
 	}
 }
@@ -114,28 +115,21 @@ func checkBannedImports(file *ast.File, bans []string) []string {
 	return result
 }
 
-/*
-
-
-This functions above are a direct copy of the import path matching code of
-https://github.com/golang/go/blob/master/src/cmd/go/internal/load/search.go.
-It can be replaced when https://golang.org/issue/8768 is resolved.
-
-
-*/
-
 // allPackagesInFS is like allPackages but is passed a pattern
 // beginning ./ or ../, meaning it should scan the tree rooted
 // at the given directory.  There are ... in the pattern too.
 func allPackagesInFS(pattern string) []string {
-	pkgs := matchPackagesInFS(pattern)
+	pkgs, err := matchPackagesInFS(pattern)
 	if len(pkgs) == 0 {
 		fmt.Fprintf(os.Stderr, "warning: %q matched no packages\n", pattern)
+	}
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %q: %v\n", pattern, err)
 	}
 	return pkgs
 }
 
-func matchPackagesInFS(pattern string) []string {
+func matchPackagesInFS(pattern string) ([]string, error) {
 	// Find directory to begin the scan.
 	// Could be smarter but this one optimization
 	// is enough for now, since ... is usually at the
@@ -154,7 +148,7 @@ func matchPackagesInFS(pattern string) []string {
 	match := matchPattern(pattern)
 
 	var pkgs []string
-	filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
+	var err = filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
 		if err != nil || !fi.IsDir() {
 			return nil
 		}
@@ -190,7 +184,7 @@ func matchPackagesInFS(pattern string) []string {
 		pkgs = append(pkgs, name)
 		return nil
 	})
-	return pkgs
+	return pkgs, err
 }
 
 // matchPattern(pattern)(name) reports whether
@@ -205,7 +199,5 @@ func matchPattern(pattern string) func(name string) bool {
 		re = re[:len(re)-len(`/.*`)] + `(/.*)?`
 	}
 	reg := regexp.MustCompile(`^` + re + `$`)
-	return func(name string) bool {
-		return reg.MatchString(name)
-	}
+	return reg.MatchString
 }

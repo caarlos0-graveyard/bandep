@@ -1,3 +1,6 @@
 vendor
 dist
 debug.test
+bandep
+coverage.txt
+bin
